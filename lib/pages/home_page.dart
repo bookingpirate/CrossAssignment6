@@ -21,20 +21,22 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadItems() async {
     List<Item> savedItems = await _dataService.loadItems();
     if (savedItems.isEmpty) {
-      // Wenn keine gespeicherten Items vorhanden sind, füge die Beispielwerte hinzu
-      savedItems.addAll(_dataService.getSampleItems());
+      // Wenn keine gespeicherten Items vorhanden sind, generiere Einträge
+      await _dataService.generateAndSaveSampleItems();
+      savedItems = await _dataService.loadItems(); // Items erneut laden
     }
     setState(() {
       _items.addAll(savedItems);
     });
   }
 
-  void _addItem(String name, String location, String category) {
+  void _addItem(String name, double latitude, double longitude, String category) {
+    final newItem = Item(name: name, latitude: latitude, longitude: longitude, category: category);
     setState(() {
-      _items.add(Item(name: name, location: location, category: category));
+      _items.add(newItem);
     });
-    _dataService.saveItems(_items); // Speichere die Liste
-    Navigator.of(context).pop(); // Schließe das Bottom Sheet
+    _dataService.saveItems(_items);
+    Navigator.of(context).pop(); // Schließe das Modal nach dem Hinzufügen
   }
 
   void _openAddItemSheet() {
@@ -42,8 +44,9 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         String name = '';
-        String location = '';
-        String category = 'Category A'; // Default-Wert
+        String category = 'Category A';
+        String latitude = '';
+        String longitude = '';
 
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -55,8 +58,14 @@ class _HomePageState extends State<HomePage> {
                 onChanged: (value) => name = value,
               ),
               TextField(
-                decoration: const InputDecoration(labelText: 'Location'),
-                onChanged: (value) => location = value,
+                decoration: const InputDecoration(labelText: 'Latitude'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => latitude = value,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Longitude'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => longitude = value,
               ),
               DropdownButton<String>(
                 value: category,
@@ -78,7 +87,11 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => _addItem(name, location, category),
+                onPressed: () {
+                  if (latitude.isNotEmpty && longitude.isNotEmpty) {
+                    _addItem(name, double.parse(latitude), double.parse(longitude), category);
+                  }
+                },
                 child: const Text('Add Item'),
               ),
             ],
@@ -94,22 +107,24 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("Home"),
       ),
-      body: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, index) {
-          final item = _items[index];
-          return ListTile(
-            title: Text(
-              item.name,
-              style: TextStyle(color: Colors.black),
+      body: _items.isEmpty // Überprüfe, ob die Liste leer ist
+          ? const Center(child: CircularProgressIndicator()) // Ladeanzeige
+          : ListView.builder(
+              itemCount: _items.length,
+              itemBuilder: (context, index) {
+                final item = _items[index];
+                return ListTile(
+                  title: Text(
+                    item.name,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  subtitle: Text(
+                    'Lat: ${item.latitude}, Lng: ${item.longitude} - ${item.category}',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                );
+              },
             ),
-            subtitle: Text(
-              '${item.location} - ${item.category}',
-              style: TextStyle(color: Colors.grey),
-            ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddItemSheet,
         tooltip: 'Add Item',

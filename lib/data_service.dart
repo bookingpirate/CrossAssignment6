@@ -1,17 +1,20 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert'; // Um JSON-Daten zu codieren und zu decodieren
+import 'dart:math';
 
 class Item {
   final String name;
-  final String location;
+  final double latitude;
+  final double longitude;
   final String category;
 
-  Item({required this.name, required this.location, required this.category});
+  Item({required this.name, required this.latitude, required this.longitude, required this.category});
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'category': category,
     };
   }
@@ -19,14 +22,31 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       name: json['name'],
-      location: json['location'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
       category: json['category'],
     );
   }
 }
 
 class DataService {
-  static const String _key = 'items'; // Schlüssel für shared_preferences
+  static const String _key = 'items';
+
+  // Zufällige Item-Generierung
+  List<Item> generateRandomItems(int count) {
+    final Random random = Random();
+    final categories = ['Category A', 'Category B', 'Category C'];
+
+    List<Item> items = List.generate(count, (index) {
+      String name = 'Item ${index + 1}';
+      double latitude = random.nextDouble() * 180 - 90; // Zufällige Breite
+      double longitude = random.nextDouble() * 360 - 180; // Zufällige Länge
+      String category = categories[random.nextInt(categories.length)];
+      return Item(name: name, latitude: latitude, longitude: longitude, category: category);
+    });
+
+    return items;
+  }
 
   Future<List<Item>> loadItems() async {
     final prefs = await SharedPreferences.getInstance();
@@ -44,18 +64,8 @@ class DataService {
     await prefs.setString(_key, jsonEncode(jsonList));
   }
 
-  List<Item> getSampleItems() {
-    return [
-      Item(name: 'Sample Item 1', location: 'Location 1', category: 'Category A'),
-      Item(name: 'Sample Item 2', location: 'Location 2', category: 'Category B'),
-      Item(name: 'Sample Item 3', location: 'Location 3', category: 'Category C'),
-      Item(name: 'Sample Item 4', location: 'Location 4', category: 'Category A'),
-      Item(name: 'Sample Item 5', location: 'Location 5', category: 'Category B'),
-      Item(name: 'Sample Item 6', location: 'Location 6', category: 'Category C'),
-      Item(name: 'Sample Item 7', location: 'Location 7', category: 'Category A'),
-      Item(name: 'Sample Item 8', location: 'Location 8', category: 'Category B'),
-      Item(name: 'Sample Item 9', location: 'Location 9', category: 'Category C'),
-      Item(name: 'Sample Item 10', location: 'Location 10', category: 'Category A'),
-    ];
+  Future<void> generateAndSaveSampleItems() async {
+    List<Item> randomItems = generateRandomItems(10); // Erstelle 10 Beispiel-Items
+    await saveItems(randomItems);
   }
 }

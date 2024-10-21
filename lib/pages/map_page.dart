@@ -31,11 +31,14 @@ class _MapPageState extends State<MapPage> {
   Future<void> _loadItems() async {
     List<Item> savedItems = await _dataService.loadItems();
     if (savedItems.isEmpty) {
-      savedItems.addAll(_dataService.getSampleItems());
+      // Wenn keine gespeicherten Items vorhanden sind, füge Beispielwerte hinzu
+      await _dataService.generateAndSaveSampleItems(); // Generiere und speichere Beispiel-Items
+      savedItems = await _dataService.loadItems(); // Lade die gespeicherten Items erneut
     }
+
     setState(() {
       _items.addAll(savedItems);
-      _setMarkers();
+      _setMarkers(); // Setze die Marker nach dem Laden der Items
     });
   }
 
@@ -43,7 +46,7 @@ class _MapPageState extends State<MapPage> {
     Set<Marker> markers = _items.map((item) {
       return Marker(
         markerId: MarkerId(item.name),
-        position: LatLng(double.parse(item.location.split(',')[0]), double.parse(item.location.split(',')[1])),
+        position: LatLng(item.latitude, item.longitude),
         infoWindow: InfoWindow(title: item.name, snippet: item.category),
       );
     }).toSet();
