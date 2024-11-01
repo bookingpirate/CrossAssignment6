@@ -3,6 +3,7 @@ import 'pages/home_page.dart';
 import 'pages/map_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/about_page.dart';
+import 'pages/login_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // Define initial route as Login Page
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+      },
     );
   }
 }
