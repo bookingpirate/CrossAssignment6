@@ -31,7 +31,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> _loadItems() async {
     List<Item> savedItems = await _dataService.loadItems();
     if (savedItems.isEmpty) {
-      // Wenn keine gespeicherten Items vorhanden sind, füge Beispielwerte hinzu
+      // Wenn keine gespeicherten Items vorhanden sind, füge Beispielwerte
       await _dataService.generateAndSaveSampleItems(); // Generiere und speichere Beispiel-Items
       savedItems = await _dataService.loadItems(); // Lade die gespeicherten Items erneut
     }
