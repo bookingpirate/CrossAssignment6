@@ -19,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadItems() async {
+    try{
     List<Item> savedItems = await _dataService.loadItems();
     if (savedItems.isEmpty) {
       await _dataService.generateAndSaveSampleItems();
@@ -27,6 +28,9 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _items.addAll(savedItems);
     });
+    }catch (e) {
+      _showSnackbar('Error loading items: ${e.toString()}');
+    }
   }
 
   void _addItem(String name, double latitude, double longitude, String category) {
@@ -34,8 +38,17 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _items.add(newItem);
     });
-    _dataService.saveItems(_items);
+    _dataService.saveItems(_items).then((_) {
+      _showSnackbar('Item saved successfully!');
+    }).catchError((error) {
+      _showSnackbar('Error saving item: ${error.toString()}');
+    });
     Navigator.of(context).pop(); // Schließe das Modal nach dem Hinzufügen
+  }
+
+  void _showSnackbar(String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _openAddItemSheet() {

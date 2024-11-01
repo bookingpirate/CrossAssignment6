@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = false);
 
     if (success) {
-      Navigator.of(context).pushReplacementNamed('/splash'); // Zu SplashScreen navigieren
+      Navigator.of(context).pushReplacementNamed('/splash');
     } else {
       setState(() {
         _error = 'Invalid username or password';

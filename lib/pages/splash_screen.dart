@@ -18,9 +18,8 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(Duration(seconds: 2)); // Ladezeit simulieren
 
     final dataService = DataService();
-    await dataService.loadItems(); // Lade deine Daten
+    await dataService.loadItems();
 
-    // Nach dem Laden zur HomePage navigieren
     Navigator.of(context).pushReplacementNamed('/home');
     
   }
