@@ -35,7 +35,7 @@ class _MapPageState extends State<MapPage> {
       await _dataService.generateAndSaveSampleItems(); // Generiere und speichere Beispiel-Items
       savedItems = await _dataService.loadItems(); // Lade die gespeicherten Items erneut
     }
-
+  print("Items: " + savedItems.toString());
     setState(() {
       _items.addAll(savedItems);
       _setMarkers(); // Setze die Marker nach dem Laden der Items

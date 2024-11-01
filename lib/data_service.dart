@@ -42,10 +42,19 @@ class DataService {
       double latitude = random.nextDouble() * 180 - 90; // Zufällige Breite
       double longitude = random.nextDouble() * 360 - 180; // Zufällige Länge
       String category = categories[random.nextInt(categories.length)];
+
+      print("Generated Item - Name: $name, Latitude: $latitude, Longitude: $longitude, Category: $category");
+      
       return Item(name: name, latitude: latitude, longitude: longitude, category: category);
     });
 
     return items;
+  }
+
+  Future<void> saveItems(List<Item> items) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<Map<String, dynamic>> jsonList = items.map((item) => item.toJson()).toList();
+    await prefs.setString(_key, jsonEncode(jsonList));
   }
 
   Future<List<Item>> loadItems() async {
@@ -53,19 +62,18 @@ class DataService {
     final String? itemsString = prefs.getString(_key);
     if (itemsString != null) {
       List<dynamic> jsonList = jsonDecode(itemsString);
-      return jsonList.map((json) => Item.fromJson(json)).toList();
+      return jsonList.map((json) {
+        if (json is Map<String, dynamic>) {
+          return Item.fromJson(json);
+        }
+        return null;
+      }).where((item) => item != null).cast<Item>().toList(); // Filtere ungültige Elemente
     }
     return [];
   }
 
-  Future<void> saveItems(List<Item> items) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> jsonList = items.map((item) => jsonEncode(item.toJson())).toList();
-    await prefs.setString(_key, jsonEncode(jsonList));
-  }
-
   Future<void> generateAndSaveSampleItems() async {
-    List<Item> randomItems = generateRandomItems(10); // Erstelle 10 Beispiel-Items
+    List<Item> randomItems = generateRandomItems(100); // Erstelle 100 Beispiel-Items
     await saveItems(randomItems);
   }
 }

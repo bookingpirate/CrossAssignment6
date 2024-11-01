@@ -1,6 +1,6 @@
-// login_page.dart
 import 'package:flutter/material.dart';
 import '../logon_service.dart';
+import 'splash_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = false);
 
     if (success) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.of(context).pushReplacementNamed('/splash'); // Zu SplashScreen navigieren
     } else {
       setState(() {
         _error = 'Invalid username or password';
@@ -49,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App Icon
             const Icon(Icons.flutter_dash, size: 80, color: Colors.deepPurple),
             const SizedBox(height: 20),
             const Text(

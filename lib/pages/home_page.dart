@@ -21,7 +21,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadItems() async {
     List<Item> savedItems = await _dataService.loadItems();
     if (savedItems.isEmpty) {
-      // Wenn keine gespeicherten Items vorhanden sind, generiere Einträge
       await _dataService.generateAndSaveSampleItems();
       savedItems = await _dataService.loadItems(); // Items erneut laden
     }
